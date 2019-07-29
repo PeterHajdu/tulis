@@ -1,5 +1,6 @@
 module Ui
 
+import State
 import World
 import Terminal
 import Data.Vect
@@ -9,7 +10,6 @@ setup : IO ()
 setup = do
   setRaw
   hideCursor
-  clearScreen
 
 export
 tearDown : IO ()
@@ -20,8 +20,12 @@ showTile : Nat -> Nat -> Tile -> IO ()
 showTile x y tile = do
   moveCursor (S x) (S y)
   case tile of
-    Empty => putStr "."
-    Finish => putStr "x"
+    Empty => do
+      setColour White
+      putStr "."
+    Finish => do
+      setColour Green
+      putStr "x"
 
 showColumn : Vect ylimit Tile -> Nat -> Nat -> IO ()
 showColumn Nil _ _ = pure ()
@@ -43,11 +47,30 @@ showTurtle (MkTurtle x y heading) =
                      West => '<'
                      East => '>'
    in do
-    moveCursor (finToNat x) (finToNat y)
+    setColour Yellow
+    moveCursor (S (finToNat x)) (S (finToNat y))
     putChar turtleChar
 
+commandToChar : Command -> Char
+commandToChar TurnLeft = '<'
+commandToChar TurnRight = '>'
+commandToChar Forward = '^'
+
+showProgram : List Command -> Nat -> IO ()
+showProgram commands row =
+  let commandString = pack $ map commandToChar commands
+   in do
+      setColour Blue
+      moveCursor Z (S row)
+      putStr commandString
+
+rows : Vect xlimit (Vect ylimit a) -> Nat
+rows _ {ylimit} = ylimit
+
 export
-showWorld : World.World -> IO ()
-showWorld (MkWorld turtle grid) = do
+showState : State -> IO ()
+showState (MkState (MkWorld turtle grid) program) = do
+  clearScreen
   showColumns grid Z
   showTurtle turtle
+  showProgram program (rows grid)
