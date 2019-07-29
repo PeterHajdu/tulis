@@ -1,6 +1,5 @@
 module Main
 
-import Turtle
 import Data.Fin
 import World
 import Data.Vect

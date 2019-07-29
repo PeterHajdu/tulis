@@ -3,7 +3,6 @@ module Ui
 import World
 import Terminal
 import Data.Vect
-import Turtle
 
 export
 setup : IO ()
