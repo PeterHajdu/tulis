@@ -25,14 +25,34 @@ data Input : Type where
   AppendCommand : Command -> Input
   DeleteCommand : Input
 
-validateInput : Char -> Maybe Input
-validateInput 'q' = Just Quit
-validateInput 'h' = Just $ AppendCommand TurnLeft
-validateInput 'l' = Just $ AppendCommand TurnRight
-validateInput 'j' = Just $ AppendCommand Forward
-validateInput 'r' = Just RunProgram
-validateInput 'd' = Just DeleteCommand
-validateInput _ = Nothing
+getArrow : IO (Maybe Input)
+getArrow = do
+  c <- getChar
+  pure $ case c of
+           'A' => Just $ AppendCommand Forward
+           'C' => Just $ AppendCommand TurnRight
+           'D' => Just $ AppendCommand TurnLeft
+           _   => Nothing
+
+getSpecial : IO (Maybe Input)
+getSpecial = do
+  c <- getChar
+  case c of
+    '[' => getArrow
+    _ => pure Nothing
+
+getInput : IO (Maybe Input)
+getInput = do
+  c <- getChar
+  case (ord c) of
+    27 => getSpecial
+    113 => pure $ Just Quit
+    104 => pure $ Just $ AppendCommand TurnLeft
+    108 => pure $ Just $ AppendCommand TurnRight
+    106 => pure $ Just $ AppendCommand Forward
+    13  => pure $ Just RunProgram
+    127 => pure $ Just DeleteCommand
+    _   => pure $ Nothing
 
 updateWorld : Command -> World.World -> World.World
 updateWorld TurnLeft (MkWorld turtle grid) = MkWorld (turnLeft turtle) grid
@@ -71,7 +91,7 @@ partial
 loop : State -> IO ()
 loop state@(MkState world program) = do
   showState state
-  Just c <- validateInput <$> getChar | loop state
+  Just c <- getInput | loop state
   case c of
     Quit => pure ()
     RunProgram => run state
