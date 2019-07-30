@@ -62,7 +62,7 @@ showProgram commands row =
    in do
       setColour Blue
       moveCursor Z (S row)
-      putStr commandString
+      putStrLn commandString
 
 rows : Vect xlimit (Vect ylimit a) -> Nat
 rows _ {ylimit} = ylimit
