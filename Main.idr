@@ -10,14 +10,9 @@ import Ui
 
 %default total
 
-turtle : Turtle 3 3
-turtle = MkTurtle FZ FZ North
-
-grid : Vect 3 (Vect 3 Tile)
-grid = [[Empty, Empty, Empty], [Empty, Empty, Empty], [Empty, Empty, Finish]]
-
-world : World.World
-world = MkWorld turtle grid
+data Result : Type where
+  Won : Result
+  Failed : Result
 
 data Input : Type where
   Quit : Input
@@ -72,9 +67,12 @@ isOver : State -> Bool
 isOver (MkState world Nil) = True
 isOver (MkState world _) = didWin world
 
+resultOf : World.World -> Result
+resultOf world = if (didWin world) then Won else Failed
+
 partial
-run : State -> IO ()
-run (MkState world Nil) = pure ()
+run : State -> IO Result
+run (MkState world Nil) = pure $ resultOf world
 run (MkState world (command::rest)) =
   let newWorld = updateWorld command world
       newState = (MkState newWorld rest)
@@ -82,26 +80,50 @@ run (MkState world (command::rest)) =
       showState newState
       sleepOneSec
       if isOver newState
-      then putStrLn $ if didWin newWorld
-                      then "You Won!"
-                      else "Try again!"
+      then pure $ resultOf newWorld
       else run newState
 
 partial
-loop : State -> IO ()
+loop : State -> IO Result
 loop state@(MkState world program) = do
   showState state
   Just c <- getInput | loop state
   case c of
-    Quit => pure ()
+    Quit => pure Failed
     RunProgram => run state
     AppendCommand command => loop $ MkState world (program ++ [command])
     DeleteCommand => let newProgram = maybe program id (init' program)
                       in loop $ MkState world newProgram
 
+level1 : State
+level1 =
+  let turtle = MkTurtle FZ FZ North
+      grid = [[Empty, Empty, Empty], [Empty, Empty, Empty], [Empty, Empty, Finish]]
+      world = MkWorld turtle grid
+   in (MkState world Nil)
+
+level2 : State
+level2 =
+  let turtle = MkTurtle FZ FZ North
+      grid = [[Empty, Empty, Empty, Empty, Empty], [Empty, Empty, Empty, Finish, Empty], [Empty, Empty, Empty, Empty, Finish]]
+      world = MkWorld turtle grid
+   in (MkState world Nil)
+
+levels : List State
+levels = [level1, level2]
+
+partial
+runLevels : List State -> IO ()
+runLevels Nil = putStrLn "You solved all puzzles!"
+runLevels allLevels@(nextLevel::rest) = do
+  result <- loop nextLevel
+  runLevels $ case result of
+                Won => rest
+                Failed => allLevels
+
 partial
 main : IO ()
 main = do
   setup
-  loop (MkState world Nil)
+  runLevels levels
   tearDown
