@@ -66,8 +66,15 @@ level2 =
       world = MkWorld turtle grid
    in (MkState world Nil)
 
+level3 : State
+level3 =
+  let turtle = MkTurtle FZ FZ North
+      grid = [[Empty, Wall, Empty, Empty, Empty], [Empty, Wall, Empty, Finish, Empty], [Empty, Empty, Empty, Wall, Finish]]
+      world = MkWorld turtle grid
+   in (MkState world Nil)
+
 levels : List State
-levels = [level1, level2]
+levels = [level1, level2, level3]
 
 partial
 whileM : Monad m => (a -> Bool) -> m a -> m a

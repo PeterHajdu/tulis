@@ -24,6 +24,9 @@ showTile x y tile = do
     Empty => do
       setColour White
       putStr "."
+    Wall => do
+      setColour BrightBlack
+      putStr "x"
     Finish => do
       setColour Green
       putStr "x"
