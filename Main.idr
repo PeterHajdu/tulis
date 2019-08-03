@@ -126,11 +126,12 @@ whileM pred action = do
   else pure result
 
 partial
-runLevels : List State -> IO ()
-runLevels Nil = putStrLn "You solved all puzzles!"
-runLevels allLevels@(nextLevel::rest) = do
-  whileM ((==) Failed) (loop nextLevel)
-  runLevels rest
+untilSuccess : State -> IO Result
+untilSuccess state = whileM ((==) Failed) (loop state)
+
+partial
+runLevels : List State -> IO (List Result)
+runLevels = traverse untilSuccess
 
 partial
 main : IO ()
