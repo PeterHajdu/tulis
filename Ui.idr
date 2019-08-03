@@ -1,5 +1,6 @@
 module Ui
 
+import Command
 import State
 import World
 import Terminal

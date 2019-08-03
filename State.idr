@@ -1,12 +1,7 @@
 module State
 
 import World
-
-public export
-data Command : Type where
-  TurnLeft : Command
-  TurnRight : Command
-  Forward : Command
+import Command
 
 public export
 data State : Type where
