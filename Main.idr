@@ -14,6 +14,11 @@ data Result : Type where
   Won : Result
   Failed : Result
 
+Eq Result where
+  Won == Won = True
+  Failed == Failed = True
+  _ == _ = False
+
 data Input : Type where
   Quit : Input
   RunProgram : Input
@@ -113,13 +118,19 @@ levels : List State
 levels = [level1, level2]
 
 partial
+whileM : Monad m => (a -> Bool) -> m a -> m a
+whileM pred action = do
+  result <- action
+  if (pred result)
+  then whileM pred action
+  else pure result
+
+partial
 runLevels : List State -> IO ()
 runLevels Nil = putStrLn "You solved all puzzles!"
 runLevels allLevels@(nextLevel::rest) = do
-  result <- loop nextLevel
-  runLevels $ case result of
-                Won => rest
-                Failed => allLevels
+  whileM ((==) Failed) (loop nextLevel)
+  runLevels rest
 
 partial
 main : IO ()
