@@ -21,23 +21,8 @@ Eq Result where
   Failed == Failed = True
   _ == _ = False
 
-updateWorld : Command -> World.World -> World.World
-updateWorld TurnLeft (MkWorld turtle grid) = MkWorld (turnLeft turtle) grid
-updateWorld TurnRight (MkWorld turtle grid) = MkWorld (turnRight turtle) grid
-updateWorld Forward (MkWorld turtle grid) = MkWorld (forward turtle) grid
-
 sleepOneSec : IO ()
 sleepOneSec = usleep 1000000
-
-didWin : World.World -> Bool
-didWin (MkWorld (MkTurtle x y _) grid) =
-  let column = index x grid
-      tile = index y column
-   in tile == Finish
-
-isOver : State -> Bool
-isOver (MkState world Nil) = True
-isOver (MkState world _) = didWin world
 
 resultOf : World.World -> Result
 resultOf world = if (didWin world) then Won else Failed

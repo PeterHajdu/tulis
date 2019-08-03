@@ -2,6 +2,7 @@ module World
 
 import Data.Vect
 import Data.Fin
+import Command
 
 %default total
 
@@ -77,3 +78,15 @@ public export
 data World : Type where
   MkWorld : Turtle xlimit ylimit -> Vect xlimit (Vect ylimit Tile) -> World.World
 
+export
+updateWorld : Command -> World.World -> World.World
+updateWorld TurnLeft (MkWorld turtle grid) = MkWorld (turnLeft turtle) grid
+updateWorld TurnRight (MkWorld turtle grid) = MkWorld (turnRight turtle) grid
+updateWorld Forward (MkWorld turtle grid) = MkWorld (forward turtle) grid
+
+export
+didWin : World.World -> Bool
+didWin (MkWorld (MkTurtle x y _) grid) =
+  let column = index x grid
+      tile = index y column
+   in tile == Finish
