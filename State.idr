@@ -3,6 +3,8 @@ module State
 import World
 import Command
 
+%default total
+
 public export
 data State : Type where
   MkState : World.World -> List Command -> State

@@ -6,6 +6,8 @@ import World
 import Terminal
 import Data.Vect
 
+%default total
+
 export
 setup : IO ()
 setup = do

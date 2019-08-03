@@ -2,6 +2,8 @@ module Input
 
 import Command
 
+%default total
+
 public export
 data Input : Type where
   Quit : Input
